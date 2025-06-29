@@ -1,0 +1,8 @@
+weapon_zm_carry is magneto stick
+
+EquipmentCache is a global array with every loaded equipment EquipmentCache[id, equipment]
+
+ROLE_ON_ROLE_ASSIGNED[%ROLENAME%] = function (ply) end --nice!
+You can also just do Role.onroleassigned in the role
+
+"TTTPlayerAliveThink" -- good hook!

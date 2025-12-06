@@ -44,7 +44,7 @@ if SERVER then
     hook.Add("EntityTakeDamage", "GrandmasterChessTrigger", function(target, dmginfo)
         if not IsValid(target) or not target:IsPlayer() then return end
         
-        if terget.InChessGame then
+        if target.InChessGame then
             dmginfo:ScaleDamage(0.01)
         end
 
@@ -82,15 +82,6 @@ if SERVER then
 
     hook.Add("ChessMatchEnded", "GrandmasterChessResult", function(winner, loser)
         
-        -- Unfreeze
-        if IsValid(winner) then 
-            winner:Freeze(false) 
-            winner.InChessGame = false
-        end
-        if IsValid(loser) then 
-            loser:Freeze(false) 
-            loser.InChessGame = false
-        end
 
         -- Kill the Loser
         if IsValid(loser) and loser:Alive() then
@@ -108,11 +99,31 @@ if SERVER then
             end
             loser:ChatPrint("Checkmate. You have been defeated.")
         end
+
+        -- Unfreeze
+        if IsValid(winner) then 
+            winner:Freeze(false) 
+            winner.InChessGame = false
+        end
+        if IsValid(loser) then 
+            loser:Freeze(false) 
+            loser.InChessGame = false
+        end
     end)
 
-    hook.Add("TTTScoringWinTitle", "GrandmasterRoundStart", function()
-        for id, _ in pairs(ChessSystem.ActiveGames) do 
+    hook.Add("TTTRoundEnd", "GrandmasterRoundEnd", function()
+        for id, cGame in pairs(ChessSystem.ActiveGames) do 
+            local w, b = cGame.White, cGame.Black
+            if IsValid(w) then
+                w:Freeze(false) 
+                w.InChessGame = false
+            end
+            if IsValid(b) then
+                b:Freeze(false) 
+                b.InChessGame = false
+            end
             ChessSystem.EndGame(id)
+
         end
     end)
 else

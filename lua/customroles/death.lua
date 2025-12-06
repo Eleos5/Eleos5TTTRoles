@@ -8,7 +8,7 @@ ROLE.nameshort = "dth"
 ROLE.desc = [[You can't see but you have a lot of health and you one shot]]
 ROLE.team = ROLE_TEAM_MONSTER
 ROLE.shop = nil
-ROLE.loadout = {}
+ROLE.loadout = {"weapon_zm_improvised"}
 ROLE.startingcredits = 0
 ROLE.startinghealth = 1
 ROLE.maxhealth = 1
@@ -34,7 +34,7 @@ if SERVER then
    end
 
    hook.Add("PlayerCanPickupWeapon", "DeathNoPickup", function(ply, wep)
-      if not string.find(wep:GetClass(), "crowbar") and ply:IsDeath() then
+      if not string.find(wep:GetClass(), "weapon_zm_improvised") and ply:IsDeath() then
          return false
       end
    end)

@@ -33,6 +33,12 @@ local PIECE_SYMBOLS = {
     [TEAM_BLACK] = { [TYPE_PAWN]="♟", [TYPE_ROOK]="♜", [TYPE_KNIGHT]="♞", [TYPE_BISHOP]="♝", [TYPE_QUEEN]="♛", [TYPE_KING]="♚" }
 }
 
+-- Piece colors for rendering
+local PIECE_COLORS = {
+    [TEAM_WHITE] = Color(255, 255, 255),
+    [TEAM_BLACK] = Color(80, 80, 80) -- Dark gray instead of pure black
+}
+
 -- Board Setup
 local function CreateBoard()
     local board = {}
@@ -354,10 +360,39 @@ if SERVER then
             hasMoved = {
                 [TEAM_WHITE] = {},
                 [TEAM_BLACK] = {}
-            }
+            },
+            Entity = nil -- Will hold the 3D board entity
         }
 
         ChessSystem.ActiveGames[gameID] = game
+        
+        -- Create 3D board entity
+        local boardEnt = ents.Create("prop_physics")
+        if IsValid(boardEnt) then
+            boardEnt:SetModel("models/hunter/plates/plate2x2.mdl")
+            boardEnt:SetMaterial("models/debug/debugwhite")
+            boardEnt:SetColor(Color(139, 69, 19))
+            
+            local whitePos = plyWhite:GetPos() + plyWhite:GetForward() * 100 + Vector(0, 0, 50)
+            local blackPos = IsValid(plyBlack) and (plyBlack:GetPos() + plyBlack:GetForward() * 100 + Vector(0, 0, 50)) or whitePos
+            local midPos = (whitePos + blackPos) / 2
+            
+            -- Calculate angle to face between players
+            local toBlack = (blackPos - whitePos):GetNormalized()
+            local boardAngle = toBlack:Angle()
+            boardAngle:RotateAroundAxis(boardAngle:Right(), 90) -- Make it vertical/facing forward
+            
+            boardEnt:SetPos(midPos)
+            boardEnt:SetAngles(boardAngle)
+            boardEnt:Spawn()
+            boardEnt:GetPhysicsObject():EnableMotion(false) -- Prevent falling
+            boardEnt:SetCollisionGroup(COLLISION_GROUP_WORLD)
+            boardEnt.ChessGameID = gameID
+            boardEnt.ChessGame = game
+            
+            game.Entity = boardEnt
+            game.BoardAngle = boardAngle
+        end
         
         net.Start("Chess_OpenGame")
             net.WriteEntity(game.White)
@@ -366,6 +401,7 @@ if SERVER then
             net.WriteInt(game.Turn, 3)
             net.WriteBool(game.IsSolo)
             net.WriteInt(timerDuration, 16)
+            net.WriteEntity(boardEnt)
         net.Send({game.White, game.Black})
         
         print("[Chess] Started game: " .. plyWhite:Nick() .. (game.IsSolo and " (Solo)" or " vs " .. plyBlack:Nick()))
@@ -390,6 +426,7 @@ if SERVER then
             net.Start("Chess_UpdateTimer")
                 net.WriteInt(math.floor(g.WhiteTime), 16)
                 net.WriteInt(math.floor(g.BlackTime), 16)
+                net.WriteString(gameID)
             net.Send({g.White, g.Black})
             
             if g.WhiteTime <= 0 then
@@ -412,9 +449,15 @@ if SERVER then
         local loser = (winnerTeam == TEAM_WHITE) and game.Black or game.White
         if game.White == game.Black then loser = game.White end
 
+        -- Remove 3D board
+        if IsValid(game.Entity) then
+            game.Entity:Remove()
+        end
+
         net.Start("Chess_EndGame")
             net.WriteInt(winnerTeam, 3)
             net.WriteString(reason or "checkmate")
+            net.WriteString(gameID)
         net.Send({game.White, game.Black})
 
         ChessSystem.ActiveGames[gameID] = nil
@@ -493,6 +536,7 @@ if SERVER then
                 net.WriteTable(game.Board)
                 net.WriteInt(game.Turn, 3)
                 net.WriteTable(game.lastMove)
+                net.WriteString(game.ID)
             net.Send({game.White, game.Black})
 
             -- Check for checkmate
@@ -568,6 +612,8 @@ if CLIENT then
     local BlackTime = 0
     local LastMoveData = nil
     local GameState = nil
+    local BoardEntity = nil
+    local BoardEntityAngle = nil
 
     local PIECE_SYMBOLS = {
         [TEAM_WHITE] = { [TYPE_PAWN]="♙", [TYPE_ROOK]="♖", [TYPE_KNIGHT]="♘", [TYPE_BISHOP]="♗", [TYPE_QUEEN]="♕", [TYPE_KING]="♔" },
@@ -607,6 +653,16 @@ if CLIENT then
                 local isDark = (r + c) % 2 == 1
                 local color = isDark and Color(118,150,86) or Color(238,238,210)
                 
+                -- Highlight last move
+                local isLastMoveSquare = false
+                if LastMoveData then
+                    if (LastMoveData.fromR == r and LastMoveData.fromC == c) or 
+                       (LastMoveData.toR == r and LastMoveData.toC == c) then
+                        isLastMoveSquare = true
+                        color = isDark and Color(170, 162, 58) or Color(205, 210, 106)
+                    end
+                end
+                
                 if SelectedSquare and SelectedSquare.r == r and SelectedSquare.c == c then
                     color = Color(186, 202, 68) 
                 end
@@ -633,12 +689,15 @@ if CLIENT then
                     local piece = CurrentBoard[r][c]
                     if piece then
                         local symbol = PIECE_SYMBOLS[piece.team][piece.type]
-                        -- Use consistent outline color (semi-transparent black)
+                        -- Better outline for black pieces
+                        local pieceColor = (piece.team == TEAM_WHITE) and Color(255,255,255) or Color(50,50,50)
+                        local outlineColor = (piece.team == TEAM_WHITE) and Color(0,0,0,150) or Color(255,255,255,200)
+                        
                         draw.SimpleTextOutlined(symbol, "DermaLarge", w/2, h/2, 
-                            (piece.team == TEAM_WHITE) and Color(255,255,255) or Color(0,0,0), 
+                            pieceColor, 
                             TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER,
                             2,
-                            Color(0, 0, 0, 150)
+                            outlineColor
                         )
                         
                         if isValidMove then
@@ -692,6 +751,7 @@ if CLIENT then
         local turn = net.ReadInt(3)
         IsSoloMode = net.ReadBool()
         local timerDuration = net.ReadInt(16)
+        BoardEntity = net.ReadEntity()
 
         if IsValid(Frame) then Frame:Close() end
 
@@ -702,6 +762,7 @@ if CLIENT then
         WhiteTime = timerDuration
         BlackTime = timerDuration
         GameState = {lastMove = nil, hasMoved = {}}
+        LastMoveData = nil
 
         Frame = vgui.Create("DFrame")
         Frame:SetSize(700, 600)
@@ -794,6 +855,8 @@ if CLIENT then
         local reason = net.ReadString()
         if IsValid(Frame) then Frame:Close() end
         
+        BoardEntity = nil
+        
         local msg = ""
         if reason == "checkmate" then
             msg = (winner == MyTeam) and "CHECKMATE - VICTORY!" or "CHECKMATE - DEFEAT!"
@@ -809,4 +872,18 @@ if CLIENT then
         
         chat.AddText((winner == MyTeam) and Color(0,255,0) or Color(255,0,0), "[Chess] " .. msg)
     end)
+    
+    -- 3D Board Rendering
+    hook.Add("PostDrawOpaqueRenderables", "CHESS_FORCE_3D2D", function()
+        if not IsValid(GameBoardEntity) then return end
+
+        local pos = GameBoardEntity:GetPos()
+        local ang = GameBoardEntity:GetAngles()
+
+        cam.Start3D2D(pos + GameBoardEntity:GetUp() * 5, ang, 0.25)
+            draw.SimpleText("CHESS BOARD VISIBLE", "DermaLarge", 0, 0, Color(255,0,0),
+                TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+        cam.End3D2D()
+    end)
+
 end

@@ -5,14 +5,14 @@ ROLE.nameraw = "superposition"
 ROLE.name = "Superposition"
 ROLE.nameplural = "Superpositions"
 ROLE.nameext = "a Superposition"
-ROLE.nameshort = "Sppos"
+ROLE.nameshort = "sppos"
 
 ROLE.desc = [[The Superposition starts as an Innocent but can transform into a random custom role using their device.]]
 
 ROLE.shortdesc = "Starts innocent, but can transform into another custom role."
 
 -- Superposition IS AN INNOCENT-TEAM ROLE
-ROLE.team = TEAM_INNOCENT
+ROLE.team = ROLE_TEAM_INNOCENT
 
 -- NO SHOP (you give the device via loadout)
 ROLE.shop = nil

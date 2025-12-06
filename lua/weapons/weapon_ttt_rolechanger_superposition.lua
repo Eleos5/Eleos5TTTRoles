@@ -2,6 +2,8 @@ if SERVER then
     AddCSLuaFile()
 end
 
+local COOLDOWN = 15.0
+
 SWEP.AllowDrop = false
 SWEP.PreventDrop = true
 
@@ -45,7 +47,7 @@ SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1
 SWEP.Primary.Ammo = "none"
 
-local COOLDOWN = 15.0
+
 
 -- All role groups you provided; the SWEP expects these to be defined globally
 local ALL_GROUPS = {
@@ -180,17 +182,8 @@ function SWEP:PrimaryAttack()
 
     -- Announce and change role. Most CR4TTT installs accept ply:SetRole(index)
     ply:ChatPrint("You are becoming: " .. roleName)
-    if ply.SetRole then
-        ply:SetRole(newRoleIndex)
-    else
-        -- Fallback: try to set ply:SetRoleRaw or SetRoleIndex if available (best-effort)
-        if ply.SetRoleIndex then
-            ply:SetRoleIndex(newRoleIndex)
-        else
-            -- If we can't set role programmatically, log server error for debugging
-            ErrorNoHalt("Role changer SWEP: no SetRole method found for player!\n")
-        end
-    end
+
+    ply:SetRole(newRoleIndex)
 
     -- Sync state to clients (best-effort)
     if SendFullStateUpdate then
@@ -205,7 +198,7 @@ function SWEP:PrimaryAttack()
         if ply:HasWeapon(device_class) then
             -- ply:StripWeapon(device_class)
         end
-        hook.Run("PlayerLoadout", self)
+        hook.Run("PlayerLoadout", ply)
         local wep = ply:Give(device_class)
         if IsValid(wep) then
             wep.NextUse = CurTime() + COOLDOWN  -- preserve cooldown

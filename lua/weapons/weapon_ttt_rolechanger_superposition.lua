@@ -203,9 +203,9 @@ function SWEP:PrimaryAttack()
         if not IsValid(ply) then return end
 
         if ply:HasWeapon(device_class) then
-            ply:StripWeapon(device_class)
+            -- ply:StripWeapon(device_class)
         end
-
+        hook.Run("PlayerLoadout", self)
         local wep = ply:Give(device_class)
         if IsValid(wep) then
             wep.NextUse = CurTime() + COOLDOWN  -- preserve cooldown
@@ -219,4 +219,5 @@ function SWEP:PrimaryAttack()
     ply:EmitSound("items/suitchargeok1.wav", 75, 100)
     ply:PrintMessage(HUD_PRINTCENTER, "Transformed into: " .. roleName .. "!")
 end
+
 

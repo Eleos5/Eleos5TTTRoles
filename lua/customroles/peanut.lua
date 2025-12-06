@@ -159,7 +159,7 @@ if CLIENT then
         
         local ply = LocalPlayer()
         local peanut = player.GetLivingRole(ROLE_PEANUT)
-        if not peanut:IsRoleActive() then
+        if peanut and not peanut:IsRoleActive() then
             peanut = nil
         end
 

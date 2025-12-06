@@ -143,7 +143,9 @@ hook.Add("Move", "Peanut_Move", function( ply, mv, usrcmd )
 end)
 
 hook.Add("PlayerFootstep", "Peanut_DisableFootsteps", function(ply, pos, foot, sound, volume, filter)
-    return true
+    if ply:IsActivePeanut() and ply:IsRoleActive() then
+        return true
+    end
 end)
 
 if CLIENT then

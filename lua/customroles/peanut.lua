@@ -41,7 +41,7 @@ end
 ROLE.convars = {
     {
         cvar = "ttt_peanut_transform_health",
-        type = ROLE_CONVAR_TPYE_NUM,
+        type = ROLE_CONVAR_TYPE_NUM,
         decimal = 0,
     }
 }
@@ -159,6 +159,9 @@ if CLIENT then
         
         local ply = LocalPlayer()
         local peanut = player.GetLivingRole(ROLE_PEANUT)
+        if not peanut:IsRoleActive() then
+            peanut = nil
+        end
 
         local isBlinking = false
         if peanut and ply ~= peanut then
@@ -312,9 +315,9 @@ hook.Add("HandlePlayerDucking", "Peanut_DisableDuckAnimation", function( ply, ve
 end)
 
 if SERVER then
-    resource.AddFile("materials/models/01__Default.vmt")
-    resource.AddFile("materials/models/peanut_normal.vtf")
-    resource.AddFile("materials/models/peanut.vtf")
+    resource.AddFile("materials/models/peanut/01__Default.vmt")
+    resource.AddFile("materials/models/peanut/peanut_normal.vtf")
+    resource.AddFile("materials/models/peanut/peanut.vtf")
     resource.AddFile("models/peanut/peanut.mdl")
 
     resource.AddFile("sound/peanut/H1.ogg")

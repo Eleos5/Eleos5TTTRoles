@@ -28,7 +28,7 @@ end
 
 
 SWEP.Base = "weapon_tttbase"
-SWEP.PrintName = "Role Change Device (Superposition)"
+SWEP.PrintName = "Role Change Device"
 SWEP.Author = "You"
 SWEP.Spawnable = false
 SWEP.AdminSpawnable = false
@@ -37,7 +37,7 @@ SWEP.AutoSpawnable = false
 SWEP.DrawCrosshair = false
 
 SWEP.ViewModel = "models/weapons/v_toolgun.mdl"
-SWEP.WorldModel = "models/weapons/w_toolgun.mdl"
+SWEP.WorldModel = ""
 
 SWEP.Primary.Delay = 1
 SWEP.Primary.Automatic = false
@@ -219,3 +219,4 @@ function SWEP:PrimaryAttack()
     ply:EmitSound("items/suitchargeok1.wav", 75, 100)
     ply:PrintMessage(HUD_PRINTCENTER, "Transformed into: " .. roleName .. "!")
 end
+

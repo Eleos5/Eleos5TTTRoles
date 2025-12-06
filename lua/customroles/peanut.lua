@@ -344,21 +344,20 @@ if SERVER then
 
         if peanut and peanutCanTransform then
             peanut:SetNWBool("TTT_PeanutActive", true)
+            
+            peanut:SetModel("models/peanut/peanut.mdl")
+            peanut:RemoveAllItems()
+            peanut:Give("weapon_ttt_peanut_snap")
+            server_peanutMovingSound = CreateSound(peanut, "Peanut_Move")
+            
+            local h = GetConVar("ttt_peanut_transform_health"):GetInt()
+            peanut:SetMaxHealth(h)
+            peanut:SetHealth(h)
+
             peanutCanTransform = false
         end
 
         if peanut and peanut:IsRoleActive() then
-            if peanut:GetModel() ~= "models/peanut/peanut.mdl" then
-                peanut:SetModel("models/peanut/peanut.mdl")
-                peanut:RemoveAllItems()
-                peanut:Give("weapon_ttt_peanut_snap")
-                server_peanutMovingSound = CreateSound(peanut, "Peanut_Move")
-                
-                local h = GetConVar("ttt_peanut_transform_health"):GetInt()
-                peanut:SetMaxHealth(h)
-                peanut:SetHealth(h)
-            end
-
             if blinkTimer > 0 then
                 blinkTimer = blinkTimer - FrameTime()
                 if blinkTimer <= 0 then

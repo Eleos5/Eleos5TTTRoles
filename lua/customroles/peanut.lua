@@ -23,7 +23,7 @@ ROLE.shortdesc = "Can only move when nobody is looking at it."
 ROLE.team = ROLE_TEAM_MONSTER
 
 ROLE.shop = nil
-ROLE.loadout = {"weapon_ttt_peanut_snap"}
+ROLE.loadout = {}
 
 ROLE.startingcredits = nil
 

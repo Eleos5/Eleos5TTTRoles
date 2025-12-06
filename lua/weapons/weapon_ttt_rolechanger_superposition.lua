@@ -2,6 +2,31 @@ if SERVER then
     AddCSLuaFile()
 end
 
+SWEP.AllowDrop = false
+SWEP.PreventDrop = true
+
+function SWEP:PreDrop()
+    self.RemoveOnDrop = false
+    return true
+end
+
+function SWEP:OnDrop()
+    self:SetOwner(nil)
+end
+
+function SWEP:ShouldDropOnDie()
+    return false
+end
+
+function SWEP:Initialize()
+    self:SetHoldType("normal")
+
+    if SERVER then
+        self.NextUse = CurTime() + COOLDOWN
+    end
+end
+
+
 SWEP.Base = "weapon_tttbase"
 SWEP.PrintName = "Role Change Device (Superposition)"
 SWEP.Author = "You"
@@ -183,8 +208,10 @@ function SWEP:PrimaryAttack()
 
         local wep = ply:Give(device_class)
         if IsValid(wep) then
+            wep.NextUse = CurTime() + COOLDOWN  -- preserve cooldown
             ply:SelectWeapon(device_class)
         end
+
     end)
 
     -- Cooldown and feedback

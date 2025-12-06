@@ -39,7 +39,7 @@ SWEP.AutoSpawnable = false
 SWEP.DrawCrosshair = false
 
 SWEP.ViewModel = "models/weapons/v_toolgun.mdl"
-SWEP.WorldModel = ""
+SWEP.WorldModel = "models/weapons/v_toolgun.mdl"
 
 SWEP.Primary.Delay = 1
 SWEP.Primary.Automatic = false
@@ -212,5 +212,6 @@ function SWEP:PrimaryAttack()
     ply:EmitSound("items/suitchargeok1.wav", 75, 100)
     ply:PrintMessage(HUD_PRINTCENTER, "Transformed into: " .. roleName .. "!")
 end
+
 
 

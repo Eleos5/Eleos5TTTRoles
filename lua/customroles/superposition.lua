@@ -49,3 +49,4 @@ RegisterRole(ROLE)
 if SERVER then
     AddCSLuaFile()
 end
+

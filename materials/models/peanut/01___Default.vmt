@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/peanut/peanut"
+	"$normalmap" "models/peanut/peanut_normal"
+}

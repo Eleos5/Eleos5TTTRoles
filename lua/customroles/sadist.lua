@@ -27,9 +27,9 @@ ROLE.maxhealth = nil
 
 ROLE.isactive = nil
 ROLE.selectionpredicate = nil
-ROLE.shouldactlikejester = function (arguments) 
+ROLE.shouldactlikejester = nil --[[function (arguments) 
     return false     
-end
+end]]
 
 ROLE.translations = {}
 

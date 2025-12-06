@@ -56,10 +56,17 @@ if SERVER then
         ply:SetVelocity(velocity)
     end)
 
+    hook.Add("EntityTakeDamage", "Frog_NoFallDamage", function(target, dmginfo)
+        if not target:IsPlayer() then return end
+        if not target:IsDoomguy() then return end
+        if dmginfo:IsFallDamage() then
+            dmginfo:SetDamage(0)
+            return true
+        end
+    end)
+
 else
 
-
-     -- ... existing code above ...
     local dashDelay = 1.0 -- keep in sync with server
     local lastDash = 0
     hook.Add("PlayerButtonDown", "Doomguy_DashKey", function(ply, button)

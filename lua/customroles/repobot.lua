@@ -110,6 +110,7 @@ if SERVER then
         if not ply:IsPlayer() then return end
         if not (ply:IsActiveRepobot() or ply:IsEvilRepobot()) then return end
         if ply:IsRagdolled() then return end
+        if dmginfo:GetDamageType() ~= DMG_BLAST and not dmginfo:GetAttacker() then return end
     
         -- Calculate fling direction: opposite of the damage force or attacker direction
         -- Can't be in a timer because dmginfo gets cleaned up after the hook

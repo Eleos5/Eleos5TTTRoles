@@ -83,14 +83,24 @@ if SERVER then
         end
     end)
 
-    hook.Add("PlayerShouldTakeDamage", "BodyBeetle_BlockAttack", function(ply, attacker)
-        if not IsValid(ply) or not ply:IsPlayer() then return end
+    hook.Add("EntityTakeDamage", "BodyBeetle_AttackReduction", function(target, dmginfo)
+        local attacker = dmginfo:GetAttacker()
+        if not attacker or not attacker:IsPlayer() then return end
         if not IsBodyBeetle(attacker) then return end
 
         if not attacker._bodybeetle_enabled then
-            return false
+            dmginfo:ScaleDamage(0.1)
         end
     end)
+
+    -- hook.Add("PlayerShouldTakeDamage", "BodyBeetle_BlockAttack", function(ply, attacker)
+    --     if not IsValid(ply) or not ply:IsPlayer() then return end
+    --     if not IsBodyBeetle(attacker) then return end
+
+    --     if not attacker._bodybeetle_enabled then
+    --         return false
+    --     end
+    -- end)
 
     local function CheckBodyBeetleStatus()
         local all_in_pile = IsAllBodiesInPile()

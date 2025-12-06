@@ -8,7 +8,7 @@ ROLE.nameshort = "dth"
 ROLE.desc = [[You can't see but you have a lot of health and you one shot]]
 ROLE.team = ROLE_TEAM_MONSTER
 ROLE.shop = nil
-ROLE.loadout = { "weapon_ttt_deathknife" }
+ROLE.loadout = {}
 ROLE.startingcredits = 0
 ROLE.startinghealth = 1
 ROLE.maxhealth = 1
@@ -34,13 +34,33 @@ if SERVER then
    end
 
    hook.Add("PlayerCanPickupWeapon", "DeathNoPickup", function(ply, wep)
-      if string.find(wep:GetClass(), "crowbar") and ply:IsDeath() then
+      if not string.find(wep:GetClass(), "crowbar") and ply:IsDeath() then
          return false
       end
    end)
 
+   local function DropAllItems(ply)
+      -- Check if player is valid and alive to prevent errors
+      if not IsValid(ply) or not ply:Alive() then return end
+
+      -- Loop through all weapons the player currently has
+      for _, wep in ipairs(ply:GetWeapons()) do
+         -- valid check ensures we don't try to drop a nil entity
+         if IsValid(wep) then
+               
+               print(wep:GetClass())
+               if string.find(wep:GetClass(), "weapon_zm_improvised") then
+                  continue
+               end
+
+               -- Force the drop
+               ply:DropWeapon(wep)
+         end
+      end
+   end
+
    ROLE_ON_ROLE_ASSIGNED[ROLE_DEATH] = function (ply)
-      ply:Give("weapon_ttt_deathknife")
+      DropAllItems(ply)
       timer.Simple(0.1, function ()
          DeathSetHealth(ply)
       end)

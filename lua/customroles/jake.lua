@@ -13,7 +13,7 @@ local ROLE = {}
 ROLE.nameraw = "jake"
 ROLE.name = "Jake"
 ROLE.nameplural = "Jakes"
-ROLE.nameext = "Jake"
+ROLE.nameext = "a Jake"
 ROLE.nameshort = "jake"
 
 ROLE.desc = [[Very Short! Previously the backstabber role]]

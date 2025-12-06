@@ -40,7 +40,7 @@ if SERVER then
     CreateConVar("ttt_narcoleptic_regen_rate", "5", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "Narcoleptic health regen per second while asleep")
 
     local function CreateTimeUntilSleep()
-        return math.random(1,20)*(1/engine.TickInterval())
+        return math.random(1,60)*(1/engine.TickInterval())
     end
 
     hook.Add("TTTPlayerAliveThink", "Narcoleptic_Think", function(ply, dead)
